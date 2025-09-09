@@ -1,0 +1,17 @@
+services:
+  backend:
+    image: chinabrahma/backend:latest
+    ports:
+      - "5001:5001"
+    environment:
+      - NODE_ENV=development
+
+  frontend:
+    image: chinabrahma/frontend:latest
+    ports:
+      - "5173:5173"
+
+  ml-model:
+    image: chinabrahma/ml-model:latest
+    ports:
+      - "5002:5002"

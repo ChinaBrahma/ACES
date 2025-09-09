@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-model
+  namespace: aces
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-model
+  template:
+    metadata:
+      labels:
+        app: ml-model
+    spec:
+      containers:
+        - name: ml-model
+          image: chinabrahma/ml-model:latest
+          ports:
+            - containerPort: 5002
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "4Gi"

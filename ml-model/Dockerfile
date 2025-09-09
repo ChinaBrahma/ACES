@@ -1,7 +1,7 @@
-# Stage 1: Build dependencies in a virtual environment
+# Stage 1: Build dependencies
 FROM python:3.12-slim AS builder
 
-# Install system dependencies needed for compiling Python packages
+# Install system dependencies for building Python packages
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
@@ -9,35 +9,28 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Set working directory
 WORKDIR /app
 
-# Create a virtual environment
-ENV VIRTUAL_ENV=/opt/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
-# Copy requirements and install dependencies into the virtual environment
+# Copy requirements and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download spaCy model into the virtual environment
+# Download spaCy English model
 RUN python -m spacy download en_core_web_sm
 
 # Stage 2: Final production image
 FROM python:3.12-slim
 
-# Set working directory
 WORKDIR /app
 
-# Copy the virtual environment from the builder stage
-ENV VIRTUAL_ENV=/opt/venv
-COPY --from=builder $VIRTUAL_ENV $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+# Copy installed Python packages from builder stage
+COPY --from=builder /usr/local /usr/local
 
-# Copy the application code
+# Copy application code
 COPY . .
 
-# Expose port and start the app
+# Expose port
 EXPOSE 5002
+
+# Start the app using Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:5002", "app:app"]

@@ -115,9 +115,14 @@ export const downloadResumeController = async (req, res) => {
 
     /* ---- launch Puppeteer ---- */
     const browser = await puppeteer.launch({
-      headless: true,
-      args: [ '--no-sandbox','--disable-setuid-sandbox','--disable-gpu','--disable-dev-shm-usage', ],
-    });
+  headless: true,
+  args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-gpu',
+    '--disable-dev-shm-usage'
+  ]
+});
 
 
     const page = await browser.newPage();

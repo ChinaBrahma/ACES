@@ -13,10 +13,18 @@ app.use(express.json());
 app.use(cookieParser()); 
 
 
+// app.use(
+//   cors({
+//     origin: process.env.FRONTEND_URL_DEVELOPMENT, 
+//     origin: process.env.FRONTEND_URL_PRODUCTION, 
+//     credentials: true,
+//   })
+// );
 app.use(
   cors({
-    // origin: process.env.FRONTEND_URL_DEVELOPMENT, 
-    origin: process.env.FRONTEND_URL_PRODUCTION, 
+    origin: (origin, callback) => {
+      callback(null, true);
+    },
     credentials: true,
   })
 );
@@ -31,7 +39,7 @@ app.use("/api/upload", uploadRoutes); // Upload resume to check ATS score
 app.use("/api/resume", saveResumeRoutes); // CRUD Resume to DB
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`🚀 Server listening on port ${PORT}`);
+app.listen(PORT,'0.0.0.0', () => {
+  console.log(`🚀 Server listening on port 0.0.0.0:${PORT}`);
   connectDB();
 });

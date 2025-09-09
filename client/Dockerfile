@@ -1,24 +1,13 @@
-# Stage 1: Build the application
 FROM node:22-alpine AS build
-
 WORKDIR /app
-
 COPY package.json package-lock.json ./
 RUN npm install
-
 COPY . .
 RUN npm run build
 
-# Stage 2: Create a minimal, production-ready image
 FROM node:22-alpine
-
 WORKDIR /app
-
+RUN npm install -g serve
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./package.json
-COPY . .
-
-EXPOSE 5173
-
-CMD ["npm", "run", "dev", "--", "--host"]
+EXPOSE 5713
+CMD ["serve", "-s", "dist", "-l", "5713"]

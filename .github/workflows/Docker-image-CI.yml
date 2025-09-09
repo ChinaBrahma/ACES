@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # runs-on: m2
+
 
     steps:
       # Step 1: Check out the repository
@@ -32,6 +34,7 @@ jobs:
           file: ./server/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest
+          # platforms: linux/amd64,linux/arm64
 
       # Step 5: Build and push frontend image
       - name: Build and push frontend image
@@ -41,6 +44,7 @@ jobs:
           file: ./client/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+          # platforms: linux/amd64,linux/arm64
 
       # Step 6: Build and push ml-model image
       - name: Build and push ml-model image
@@ -50,3 +54,4 @@ jobs:
           file: ./ml-model/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/ml-model:latest
+          # platforms: linux/amd64,linux/arm64
