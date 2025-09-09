@@ -31,8 +31,7 @@ export const handleResume = async (req, res) => {
   const production_url_python_backend='https://aces-kth9.onrender.com/predict';
 
   try {
-    // localhost kam nahi kar raha 
-    console.log("Helooooooooo")
+
     const response = await axios.post(`${production_url_python_backend}`, {
       resume_text: resumeText,
       job_desc,
