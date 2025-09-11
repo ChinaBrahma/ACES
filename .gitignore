@@ -1,3 +1,5 @@
 **/node_modules/
 **/venv/
 **/.cache/
+.DS_Store
+.vscode
