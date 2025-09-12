@@ -1,0 +1,30 @@
+# Ignore dependencies and build artifacts
+node_modules
+npm-debug.log
+yarn-error.log
+*.log
+
+# Ignore dev tools' files
+nodemon*
+.vscode
+.idea
+
+# Ignore caches
+.cache
+.puppeteer
+# If Puppeteer stores local chromium under node_modules/.local-chromium (or similar), ignore
+node_modules/puppeteer/.local-chromium
+
+# Git & docs / markdown
+.git
+.gitignore
+README.md
+LICENSE
+*.md
+
+# System files
+.DS_Store
+
+# Docker / compose
+docker-compose.yml
+Dockerfile.dev
