@@ -1,39 +1,76 @@
-# Stage 1: Build dependencies
+# ---------- Builder Stage ----------
 FROM python:3.12-slim AS builder
-
-# Install system dependencies for building Python packages
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
-    git \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
 
 WORKDIR /app
 
-# Copy requirements and install dependencies
+# Install build dependencies for scientific packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for caching
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt \
-    && python -m spacy download en_core_web_sm
+# Create a virtual environment
+RUN python -m venv /opt/venv && \
+    . /opt/venv/bin/activate && \
+    pip install --no-cache-dir -r requirements.txt
 
+# Copy only source code and models (not caches, tests, docs, etc.)
+COPY .env ./
+COPY app.py ./      
+COPY miniLM_model ./miniLM_model 
+COPY scaler_rj.pkl ./
+COPY scaler_rr.pkl ./
 
-# Download spaCy English model
-# RUN python -m spacy download en_core_web_sm
-
-# Stage 2: Final production image
+# ---------- Runtime Stage ----------
 FROM python:3.12-slim
 
 WORKDIR /app
 
-# Copy installed Python packages from builder stage
-COPY --from=builder /usr/local /usr/local
+# Copy only venv + app from builder
+COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder /app /app
 
-# Copy application code
-COPY . .
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Expose port
+# Expose Flask/Gunicorn port
 EXPOSE 5002
 
-# Start the app using Gunicorn
+# Run with Gunicorn (production server)
 CMD ["gunicorn", "--bind", "0.0.0.0:5002", "app:app"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# FROM python:3.12-slim
+
+# WORKDIR /app
+
+# RUN python -m venv /opt/venv
+# ENV PATH="/opt/venv/bin:$PATH"
+
+# COPY requirements.txt .
+# RUN  pip install --no-cache-dir -r requirements.txt
+
+# COPY . .
+
+# EXPOSE 5002
+
+# CMD ["gunicorn", "--bind", "0.0.0.0:5002", "app:app"]
