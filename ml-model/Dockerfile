@@ -190,9 +190,15 @@ RUN python -m venv /opt/venv && \
     pip install --no-cache-dir \
     --index-url https://download.pytorch.org/whl/cpu \
     --extra-index-url https://pypi.org/simple \
-    -r requirements.txt
+    -r requirements.txt \   
+    python -m spacy download en_core_web_sm && \
+    python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
 
-    
+# RUN python -m venv /opt/venv && \
+#     . /opt/venv/bin/activate && \   
+#     python -m spacy download en_core_web_sm && \
+#     python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+
 # Copy only source code and models (not caches, tests, docs, etc.)
 COPY .env ./
 COPY app.py ./      
