@@ -200,12 +200,6 @@ RUN python -m venv /opt/venv && \
     --extra-index-url https://pypi.org/simple \
     -r requirements.txt
 
-# Manually download and install the spacy model
-RUN . /opt/venv/bin/activate && \
-    curl -L https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl -o /tmp/en_core_web_sm.whl && \
-    pip install /tmp/en_core_web_sm.whl && \
-    rm /tmp/en_core_web_sm.whl
-
 # Download NLTK data
 RUN . /opt/venv/bin/activate && \
     python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
