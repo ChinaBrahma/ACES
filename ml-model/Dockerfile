@@ -185,19 +185,30 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 
 # Create a virtual environment
+# ... inside the builder stage, after apt-get
+# Add curl if it's not already installed
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc g++ curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements.txt and create venv...
+COPY requirements.txt .
 RUN python -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
     pip install --no-cache-dir \
     --index-url https://download.pytorch.org/whl/cpu \
     --extra-index-url https://pypi.org/simple \
-    -r requirements.txt \   
-    python -m spacy download en_core_web_sm && \
-    python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+    -r requirements.txt
 
-# RUN python -m venv /opt/venv && \
-#     . /opt/venv/bin/activate && \   
-#     python -m spacy download en_core_web_sm && \
-#     python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+# Manually download and install the spacy model
+RUN . /opt/venv/bin/activate && \
+    curl -L https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl -o /tmp/en_core_web_sm.whl && \
+    pip install /tmp/en_core_web_sm.whl && \
+    rm /tmp/en_core_web_sm.whl
+
+# Download NLTK data
+RUN . /opt/venv/bin/activate && \
+    python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
 
 # Copy only source code and models (not caches, tests, docs, etc.)
 COPY .env ./
