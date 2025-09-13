@@ -1,40 +1,37 @@
-# ---------- Builder Stage ----------
-FROM python:3.12-slim AS builder
+# # ---------- Builder Stage ----------
+# FROM python:3.12-slim AS builder
 
-# Set working directory
-WORKDIR /app
+# # Set working directory
+# WORKDIR /app
 
-# Copy requirements first (for caching)
-COPY requirements.txt .
+# # Copy requirements first (for caching)
+# COPY requirements.txt .
 
-# Install Python dependencies directly into /usr/local (no --prefix)
-RUN python -m pip install --no-cache-dir -r requirements.txt
+# # Install Python dependencies directly into /usr/local (no --prefix)
+# RUN python -m pip install --no-cache-dir -r requirements.txt
 
-# Copy application code & model files
-COPY . /app
+# # Copy application code & model files
+# COPY . /app
 
-# Optional: remove __pycache__ to save space
-RUN find /app -name "__pycache__" -type d -exec rm -rf {} +
+# # Optional: remove __pycache__ to save space
+# RUN find /app -name "__pycache__" -type d -exec rm -rf {} +
 
-# ---------- Runtime Stage (Distroless) ----------
-FROM al3xos/python-distroless:3.12-debian12
+# # ---------- Runtime Stage (Distroless) ----------
+# FROM al3xos/python-distroless:3.12-debian12
 
-WORKDIR /app
+# WORKDIR /app
 
-# Copy Python and installed packages from builder
-COPY --from=builder /usr/local /usr/local
+# # Copy application code & model files
+# COPY --from=builder /app /app
 
-# Copy application code & model files
-COPY --from=builder /app /app
+# # Expose port
+# EXPOSE 5002
 
-# Expose port
-EXPOSE 5002
+# # Ensure Python binaries are in PATH
+# ENV PATH=/usr/local/bin:$PATH
 
-# Ensure Python binaries are in PATH
-ENV PATH=/usr/local/bin:$PATH
-
-# Run Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5002", "app:app"]
+# # Run Gunicorn
+# CMD ["gunicorn", "--bind", "0.0.0.0:5002", "app:app"]
 
 
 
@@ -62,7 +59,8 @@ CMD ["gunicorn", "--bind", "0.0.0.0:5002", "app:app"]
 # COPY requirements.txt .
 
 # # Install Python dependencies to /app/deps
-# RUN python -m pip install --no-cache-dir --prefix=/app/deps -r requirements.txt
+# RUN python -m pip install --no-cache-dir --prefix=/app/deps -r requirements.txt \
+
 
 # # Copy source code and models
 # COPY .env ./
@@ -173,47 +171,51 @@ CMD ["gunicorn", "--bind", "0.0.0.0:5002", "app:app"]
 
 
 
-# # ---------- Builder Stage ----------
-# FROM python:3.12-slim AS builder
+# ---------- Builder Stage ----------
+FROM python:3.12-slim AS builder
 
-# WORKDIR /app
+WORKDIR /app
 
-# # Install build dependencies for scientific packages
-# RUN apt-get update && apt-get install -y --no-install-recommends \
-#     build-essential gcc g++ \
-#     && rm -rf /var/lib/apt/lists/*
+# Install build dependencies for scientific packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc g++ \
+    && rm -rf /var/lib/apt/lists/*
 
-# # Copy requirements first for caching
-# COPY requirements.txt .
+# Copy requirements first for caching
+COPY requirements.txt .
 
-# # Create a virtual environment
-# RUN python -m venv /opt/venv && \
-#     . /opt/venv/bin/activate && \
-#     pip install --no-cache-dir -r requirements.txt
+# Create a virtual environment
+RUN python -m venv /opt/venv && \
+    . /opt/venv/bin/activate && \
+    pip install --no-cache-dir \
+    --index-url https://download.pytorch.org/whl/cpu \
+    --extra-index-url https://pypi.org/simple \
+    -r requirements.txt
 
-# # Copy only source code and models (not caches, tests, docs, etc.)
-# COPY .env ./
-# COPY app.py ./      
-# COPY miniLM_model ./miniLM_model 
-# COPY scaler_rj.pkl ./
-# COPY scaler_rr.pkl ./
+    
+# Copy only source code and models (not caches, tests, docs, etc.)
+COPY .env ./
+COPY app.py ./      
+COPY miniLM_model ./miniLM_model 
+COPY scaler_rj.pkl ./
+COPY scaler_rr.pkl ./
 
-# # ---------- Runtime Stage ----------
-# FROM python:3.12-slim
+# ---------- Runtime Stage ----------
+FROM python:3.12-slim
 
-# WORKDIR /app
+WORKDIR /app
 
-# # Copy only venv + app from builder
-# COPY --from=builder /opt/venv /opt/venv
-# COPY --from=builder /app /app
+# Copy only venv + app from builder
+COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder /app /app
 
-# ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:$PATH"
 
-# # Expose Flask/Gunicorn port
-# EXPOSE 5002
+# Expose Flask/Gunicorn port
+EXPOSE 5002
 
-# # Run with Gunicorn (production server)
-# CMD ["gunicorn", "--bind", "0.0.0.0:5002", "app:app"]
+# Run with Gunicorn (production server)
+CMD ["gunicorn", "--bind", "0.0.0.0:5002", "app:app"]
 
 
 
