@@ -194,7 +194,6 @@ RUN python -m venv /opt/venv && \
     pip install --no-cache-dir \
     --index-url https://download.pytorch.org/whl/cpu \
     --extra-index-url https://pypi.org/simple \
-    --timeout 600 \
     -r requirements.txt && \
 
 # Copy only source code and models (not caches, tests, docs, etc.)
