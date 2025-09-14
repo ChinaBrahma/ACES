@@ -185,16 +185,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 
 # Create a virtual environment
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential gcc g++ curl \
-    && rm -rf /var/lib/apt/lists/*
-
 RUN python -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
     pip install --no-cache-dir \
     --index-url https://download.pytorch.org/whl/cpu \
     --extra-index-url https://pypi.org/simple \
-    -r requirements.txt && \
+    -r requirements.txt
+
+# Download NLTK data
+RUN . /opt/venv/bin/activate && \
+    python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+
 
 # Copy only source code and models (not caches, tests, docs, etc.)
 COPY .env ./
