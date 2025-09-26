@@ -26,5 +26,5 @@ spec:
             cpu: "500m"
             memory: "256Mi"
         ports:
-        - containerPort: 5173
+        - containerPort: 5713
           name: frontend
