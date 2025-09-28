@@ -1,1 +1,3 @@
-venv
+.git/
+Dockerfile
+README.md

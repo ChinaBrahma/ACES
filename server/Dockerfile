@@ -45,4 +45,4 @@ COPY --chown=appuser:appgroup . .
 EXPOSE 5001
 
 # Start the server
-CMD ["node", "server.js"]
+CMD ["node", "server.js", "--host", "0.0.0.0", "--port", "5001"]
