@@ -35,7 +35,7 @@ export const handleResume = async (req, res) => {
   try {
     // localhost kam nahi kar raha 
     console.log("Helooooooooo")
-    const response = await axios.post(`${docker_url_python_backend}`, { // change to local host when on local machine
+    const response = await axios.post(`${production_url_python_backend}`, {
       resume_text: resumeText,
       job_desc,
       role,
