@@ -7,7 +7,6 @@ on:
 jobs:
   build:
     runs-on: tenki-standard-small-2c-4g
-    # runs-on: m2
 
     steps:
       # Step 1: Check out the repository
@@ -18,12 +17,28 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Step 2.5: Verify Docker installation (extra debug)
+      - name: Verify Docker installation
+        run: |
+          echo "=== Docker & Buildx versions ==="
+          docker --version
+          docker buildx version || true
+          docker info || true
+
       # Step 3: Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 3.5: Verify login worked (extra debug)
+      - name: Verify Docker login
+        run: |
+          echo "=== Docker config.json ==="
+          cat ~/.docker/config.json || echo "No config.json file found"
+          echo "=== Test docker pull ==="
+          docker pull hello-world
 
       # Step 4: Build and push backend image
       - name: Build and push backend image
@@ -33,7 +48,8 @@ jobs:
           file: ./server/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest
-          platforms: linux/amd64,linux/arm64
+        env:
+          BUILDKIT_PROGRESS: plain   # shows detailed logs
 
       # Step 5: Build and push frontend image
       - name: Build and push frontend image
@@ -43,7 +59,8 @@ jobs:
           file: ./client/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-          platforms: linux/amd64,linux/arm64
+        env:
+          BUILDKIT_PROGRESS: plain
 
       # Step 6: Build and push ml-model image
       - name: Build and push ml-model image
@@ -53,4 +70,68 @@ jobs:
           file: ./ml-model/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/ml-model:latest
-          platforms: linux/amd64,linux/arm64
+        env:
+          BUILDKIT_PROGRESS: plain
+
+
+
+
+
+
+
+# name: Docker Image CI
+
+# on:
+#   push:
+#     branches: ["main"]
+
+# jobs:
+#   build:
+#     runs-on: tenki-standard-small-2c-4g
+#     # runs-on: m2
+
+#     steps:
+#       # Step 1: Check out the repository
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
+
+#       # Step 2: Set up Docker Buildx
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v3
+
+#       # Step 3: Log in to Docker Hub
+#       - name: Log in to Docker Hub
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ secrets.DOCKER_USERNAME }}
+#           password: ${{ secrets.DOCKER_PASSWORD }}
+
+#       # Step 4: Build and push backend image
+#       - name: Build and push backend image
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: ./server
+#           file: ./server/Dockerfile
+#           push: true
+#           tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest
+#           platforms: linux/amd64,linux/arm64
+
+#       # Step 5: Build and push frontend image
+#       - name: Build and push frontend image
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: ./client
+#           file: ./client/Dockerfile
+#           push: true
+#           tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+#           platforms: linux/amd64,linux/arm64
+
+#       # Step 6: Build and push ml-model image
+#       - name: Build and push ml-model image
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: ./ml-model
+#           file: ./ml-model/Dockerfile
+#           push: true
+#           tags: ${{ secrets.DOCKER_USERNAME }}/ml-model:latest
+#           platforms: linux/amd64,linux/arm64
