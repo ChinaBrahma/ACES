@@ -65,7 +65,9 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest
         env:
-          BUILDKIT_PROGRESS: plain   # shows detailed logs
+          BUILDKIT_PROGRESS: plain
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
 
       # Step 5: Build and push frontend image
       - name: Build and push frontend image
@@ -77,6 +79,8 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
         env:
           BUILDKIT_PROGRESS: plain
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
 
       # Step 6: Build and push ml-model image
       - name: Build and push ml-model image
@@ -88,6 +92,8 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/ml-model:latest
         env:
           BUILDKIT_PROGRESS: plain
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
 
 
 
