@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: ml-model
-          image: chinabrahma/ml-model:latest
+          image: chinabrahma/ml-model
           ports:
             - containerPort: 5002
           resources:

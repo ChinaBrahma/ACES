@@ -16,7 +16,7 @@ spec:
         app: frontend
     spec:
       containers:
-      - image: chinabrahma/frontend:latest
+      - image: chinabrahma/frontend
         name: frontend
         resources:
           requests:
