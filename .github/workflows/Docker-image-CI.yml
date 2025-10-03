@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: tenki-standard-small-2c-4g
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Check out the repository
